@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMJAY - कॉल सेंटर और CRM सिस्टम</title>
+    <title>PMJAY डिजिटल इकोसिस्टम: कॉल सेंटर और LED डिस्प्ले</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* BASE STYLES */
         * {
             margin: 0;
             padding: 0;
@@ -14,886 +16,997 @@
         }
 
         :root {
-            --primary: #1e3c72;
-            --secondary: #ff9933;
-            --accent: #138808;
+            --primary: #1e3c72; /* Deep Blue (PMJAY Color) */
+            --secondary: #ff9933; /* Orange Accent */
+            --accent: #138808; /* Green */
             --light: #f0f8ff;
             --dark: #0c2461;
             --text: #2c3e50;
             --danger: #e74c3c;
             --success: #27ae60;
+            --bg-main: #242944; /* Dark background for PPT screen effect */
         }
 
+        /* KEY FIX: Allows scrolling and removes fixed centering from body */
         body {
-            background: linear-gradient(135deg, #0c2461 0%, #1e3799 50%, #4a69bd 100%);
+            background: var(--bg-main); 
             color: var(--text);
             line-height: 1.6;
+            overflow-x: hidden; 
+            padding: 50px 0; /* Padding for top/bottom separation */
             min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* The Slide Wrapper - Simple container */
+        .slide-wrapper {
             width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(255, 153, 51, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(30, 60, 114, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(19, 136, 8, 0.05) 0%, transparent 50%);
-            z-index: -1;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 30px 0;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             position: relative;
-            overflow: hidden;
-            border: 2px solid var(--secondary);
         }
 
-        header::before {
+        /* SLIDE STYLING */
+        .slide {
+            width: 1280px; 
+            min-height: 720px; 
+            height: auto; 
+            margin: 50px auto; 
+            padding: 50px;
+            padding-bottom: 90px; 
+            position: relative; 
+            background-color: white; 
+            overflow: visible; 
+            box-shadow: 0 10px 80px rgba(0, 0, 0, 0.4); 
+            border-radius: 5px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .slide.focused {
+             box-shadow: 0 10px 80px var(--secondary);
+             transform: scale(1.01);
+        }
+        
+        /* HEADER BAR */
+        .slide::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 8px;
-            background: linear-gradient(90deg, var(--secondary), var(--primary), var(--accent));
+            height: 10px; 
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
 
-        .logo-container {
+        /* SLIDE FOOTER */
+        .slide-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--dark);
+            color: white;
+            padding: 0 40px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
-            gap: 20px;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            z-index: 20;
         }
 
-        .logo {
-            height: 80px;
+        .footer-logo {
+            height: 40px;
             width: auto;
-            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+            filter: brightness(2); 
         }
-
+        
+        /* TYPOGRAPHY */
         h1 {
             color: var(--primary);
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 3.5rem; 
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 800;
         }
 
         h2 {
-            color: var(--primary);
-            font-size: 2.2rem;
-            margin: 30px 0 20px;
+            color: var(--dark);
+            font-size: 2.4rem;
+            margin-bottom: 25px;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary); 
             padding-bottom: 10px;
-            border-bottom: 3px solid var(--secondary);
-            position: relative;
-        }
-
-        h2::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 100px;
-            height: 3px;
-            background: var(--accent);
+            font-weight: 600;
         }
 
         h3 {
             color: var(--primary);
             font-size: 1.8rem;
-            margin: 25px 0 15px;
-            padding-left: 15px;
-            border-left: 5px solid var(--secondary);
+            margin: 20px 0 10px;
+            border-left: 5px solid var(--accent); 
+            padding-left: 10px;
         }
 
         h4 {
             color: var(--dark);
+            font-size: 1.6rem;
+            margin: 10px 0 5px;
+        }
+
+        p {
             font-size: 1.4rem;
-            margin: 20px 0 10px;
-        }
-
-        .subtitle {
-            font-size: 1.4rem;
-            color: var(--secondary);
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            border: 2px solid transparent;
-            background-clip: padding-box;
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
-            overflow: hidden;
-        }
-
-        .content-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--secondary), var(--primary), var(--accent));
-        }
-
-        .content-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .highlight-box {
-            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            border-left: 6px solid var(--primary);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .problem-solution-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 30px 0;
-        }
-
-        .problem-section, .solution-section {
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .problem-section {
-            background: linear-gradient(135deg, #ffeaea 0%, #ffcccc 100%);
-            border-left: 6px solid var(--danger);
-        }
-
-        .solution-section {
-            background: linear-gradient(135deg, #eaffea 0%, #ccffcc 100%);
-            border-left: 6px solid var(--success);
-        }
-
-        .problem-item, .solution-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.7);
-        }
-
-        .problem-item {
-            border-left: 4px solid var(--danger);
-        }
-
-        .solution-item {
-            border-left: 4px solid var(--success);
-        }
-
-        .problem-icon, .solution-icon {
-            font-size: 1.8rem;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-
-        .problem-icon {
-            color: var(--danger);
-        }
-
-        .solution-icon {
-            color: var(--success);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: scale(1.05);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--secondary);
-        }
-
-        .stat-text {
-            font-size: 1.1rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            border-top: 5px solid var(--secondary);
-            transition: transform 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
             margin-bottom: 15px;
-        }
-
-        .workflow {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .workflow-step {
-            display: flex;
-            align-items: center;
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            position: relative;
-        }
-
-        .step-number {
-            background: var(--primary);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 20px;
-            flex-shrink: 0;
-        }
-
-        .step-arrow {
-            position: absolute;
-            right: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--secondary);
-            font-size: 1.5rem;
-            z-index: 1;
-        }
-
-        .call-center-info {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin: 30px 0;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: 3px solid var(--secondary);
         }
 
-        .phone-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--secondary);
-            margin: 15px 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .timing {
+        li {
             font-size: 1.3rem;
-            margin-top: 10px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: var(--text);
+            padding-left: 5px;
         }
 
-        .integration-diagram {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin: 30px 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            text-align: center;
-        }
-
-        .diagram {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .diagram-item {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 15px;
-            width: 200px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 2px solid var(--primary);
-        }
-
-        .diagram-arrow {
-            font-size: 2rem;
-            color: var(--secondary);
-        }
-
-        .benefits-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .benefits-list li {
-            padding: 15px;
-            margin-bottom: 15px;
-            background: white;
+        /* COMPONENTS */
+        .logo { height: 90px; width: auto; display: block; margin: 0 auto 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+        .stat-card { background: white; color: var(--dark); padding: 20px 10px; border-radius: 8px; text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); border-top: 5px solid var(--secondary); transition: transform 0.3s;}
+        .stat-number { font-size: 2.8rem; font-weight: 900; color: var(--primary); }
+        .chart-container { background: white; padding: 20px; border-radius: 10px; height: 350px; margin: 15px 0; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-top: 25px; }
+        .detail-card, .crm-module-card { background: #fdfdfd; padding: 18px; border-radius: 10px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); border-left: 5px solid var(--primary); transition: all 0.3s;}
+        .example-box { background: var(--light); border-radius: 5px; padding: 10px; margin-top: 10px; font-style: italic; font-size: 1.1rem; text-align: left; border: 1px dashed var(--primary); }
+        .content-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;}
+        
+        /* LED Specific Styles */
+        .led-feature {
+            background: #fff;
+            border: 2px solid var(--accent);
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            border-left: 5px solid var(--accent);
-            display: flex;
-            align-items: center;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
-        .benefits-list li i {
+        .led-feature i {
             color: var(--accent);
-            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+        .led-feature h4 {
+            color: var(--accent);
+            margin-top: 0;
             font-size: 1.5rem;
         }
-
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            margin-top: 50px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .footer-logo {
-            height: 60px;
-            margin-bottom: 15px;
-        }
-
-        .impact-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .led-data-display {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
             gap: 15px;
-            margin: 25px 0;
         }
-
-        .metric-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
+        .data-item {
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            flex: 1;
         }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: bold;
+        .data-item .number {
+            font-size: 3rem;
+            font-weight: 900;
             color: var(--primary);
-            margin-bottom: 5px;
+            display: block;
         }
-
-        .metric-label {
+        
+        /* Navigation (FIXED AT TOP-RIGHT for visibility) */
+        .nav-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px; 
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 8px;
+            border-radius: 12px;
+            display: grid; /* Use grid for better layout of many buttons */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 5px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        .nav-controls:hover { opacity: 1; }
+        .nav-controls a {
+            display: block;
+            width: 30px;
+            height: 30px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            text-decoration: none;
             font-size: 1rem;
-            color: var(--text);
+            transition: background 0.3s, color 0.3s, transform 0.3s;
         }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            h2 {
-                font-size: 1.8rem;
-            }
-            
-            .problem-solution-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid, .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .workflow-step {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .step-number {
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
-            
-            .step-arrow {
-                position: static;
-                transform: none;
-                margin: 10px 0;
-            }
-            
-            .phone-number {
-                font-size: 1.8rem;
-            }
-            
-            .diagram {
-                flex-direction: column;
-            }
-            
-            .diagram-arrow {
-                transform: rotate(90deg);
-            }
-        }
-
-        /* Animation for elements */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animated {
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(var(--secondary), var(--primary));
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(var(--primary), var(--secondary));
+        .nav-controls a.active {
+            background: var(--secondary);
+            color: white;
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="animated">
-            <div class="logo-container">
-                <img src="https://www.pmjay.gov.in/sites/default/files/2024-02/ayushman-bharat-logo-new.png" alt="आयुष्मान भारत लोगो" class="logo">
-            </div>
-            <h1>प्रधानमंत्री जन आरोग्य योजना</h1>
-            <div class="subtitle">वर्तमान चुनौतियाँ और कॉल सेंटर/CRM समाधान</div>
-        </header>
+    
+    <div class="slide-wrapper" id="slideWrapper">
+    
+    <div class="nav-controls">
+        <a href="javascript:void(0)" onclick="showSlide(1)" data-slide="1">1</a>
+        <a href="javascript:void(0)" onclick="showSlide(2)" data-slide="2">2</a>
+        <a href="javascript:void(0)" onclick="showSlide(3)" data-slide="3">3</a>
+        <a href="javascript:void(0)" onclick="showSlide(4)" data-slide="4">4</a>
+        <a href="javascript:void(0)" onclick="showSlide(5)" data-slide="5">5</a>
+        <a href="javascript:void(0)" onclick="showSlide(6)" data-slide="6">6</a>
+        <a href="javascript:void(0)" onclick="showSlide(7)" data-slide="7">7</a>
+        <a href="javascript:void(0)" onclick="showSlide(8)" data-slide="8">8</a>
+        <a href="javascript:void(0)" onclick="showSlide(9)" data-slide="9">9</a>
+        <a href="javascript:void(0)" onclick="showSlide(10)" data-slide="10">10</a>
+        <a href="javascript:void(0)" onclick="showSlide(11)" data-slide="11">11</a>
+        <a href="javascript:void(0)" onclick="showSlide(12)" data-slide="12">12</a>
+        <a href="javascript:void(0)" onclick="showSlide(13)" data-slide="13">13</a>
+        <a href="javascript:void(0)" onclick="showSlide(14)" data-slide="14">14</a>
+        <a href="javascript:void(0)" onclick="showSlide(15)" data-slide="15">15</a>
+        <a href="javascript:void(0)" onclick="showSlide(16)" data-slide="16">16</a>
+        <a href="javascript:void(0)" onclick="showSlide(17)" data-slide="17">17</a>
+        <a href="javascript:void(0)" onclick="showSlide(18)" data-slide="18">18</a>
+    </div>
 
-        <!-- नया पेज: समस्याएं और समाधान -->
-        <div class="content-card animated">
-            <h2>PMJAY योजना में वर्तमान समस्याएं</h2>
-            <p>प्रधानमंत्री जन आरोग्य योजना एक क्रांतिकारी पहल है, लेकिन इसके कार्यान्वयन में कुछ महत्वपूर्ण चुनौतियाँ हैं जिनका समाधान कॉल सेंटर और CRM सिस्टम के माध्यम से किया जा सकता है।</p>
-            
-            <div class="problem-solution-grid">
-                <div class="problem-section">
-                    <h3><i class="fas fa-exclamation-triangle"></i> वर्तमान समस्याएं</h3>
-                    
-                    <div class="problem-item">
-                        <div class="problem-icon">
-                            <i class="fas fa-users-slash"></i>
-                        </div>
-                        <div>
-                            <h4>जागरूकता की कमी</h4>
-                            <p>ग्रामीण और दूरदराज के इलाकों में लोगों को योजना के बारे में पता नहीं है या गलत जानकारी है।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="problem-item">
-                        <div class="problem-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div>
-                            <h4>जटिल प्रक्रिया</h4>
-                            <p>दावा प्रक्रिया जटिल लगती है, जिससे लाभार्थी भ्रमित होते हैं और लाभ नहीं ले पाते।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="problem-item">
-                        <div class="problem-icon">
-                            <i class="fas fa-hospital"></i>
-                        </div>
-                        <div>
-                            <h4>अस्पताल समन्वय की कमी</h4>
-                            <p>अस्पतालों और योजना प्रशासन के बीच समन्वय की कमी से देरी होती है।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="problem-item">
-                        <div class="problem-icon">
-                            <i class="fas fa-comment-slash"></i>
-                        </div>
-                        <div>
-                            <h4>संचार अंतराल</h4>
-                            <p>लाभार्थियों के पास समस्याओं की रिपोर्ट करने और समाधान पाने का कोई सीधा तरीका नहीं है।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="problem-item">
-                        <div class="problem-icon">
-                            <i class="fas fa-database"></i>
-                        </div>
-                        <div>
-                            <h4>डेटा प्रबंधन चुनौतियाँ</h4>
-                            <p>विभिन्न स्रोतों से आने वाले डेटा का केंद्रीकृत प्रबंधन न होना।</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="solution-section">
-                    <h3><i class="fas fa-lightbulb"></i> कॉल सेंटर और CRM समाधान</h3>
-                    
-                    <div class="solution-item">
-                        <div class="solution-icon">
-                            <i class="fas fa-bullhorn"></i>
-                        </div>
-                        <div>
-                            <h4>सक्रिय जागरूकता अभियान</h4>
-                            <p>कॉल सेंटर के माध्यम से आउटबाउंड कॉल करके लाभार्थियों को योजना के बारे में सूचित करना।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="solution-item">
-                        <div class="solution-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
-                        <div>
-                            <h4>24x7 मार्गदर्शन सहायता</h4>
-                            <p>कॉल सेंटर के माध्यम से दावा प्रक्रिया में कदम-दर-कदम मार्गदर्शन प्रदान करना।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="solution-item">
-                        <div class="solution-icon">
-                            <i class="fas fa-sync-alt"></i>
-                        </div>
-                        <div>
-                            <h4>रियल-टाइम समन्वय</h4>
-                            <p>CRM सिस्टम के माध्यम से अस्पतालों, लाभार्थियों और प्रशासन के बीच रियल-टाइम समन्वय स्थापित करना।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="solution-item">
-                        <div class="solution-icon">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        <div>
-                            <h4>बहु-चैनल संचार</h4>
-                            <p>कॉल, एसएमएस, ईमेल, व्हाट्सएप के माध्यम से निरंतर संचार सुनिश्चित करना।</p>
-                        </div>
-                    </div>
-                    
-                    <div class="solution-item">
-                        <div class="solution-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div>
-                            <h4>केंद्रीकृत डेटा प्रबंधन</h4>
-                            <p>CRM सिस्टम के माध्यम से सभी डेटा का केंद्रीकृत प्रबंधन और विश्लेषण करना।</p>
-                        </div>
-                    </div>
+    <section class="slide" id="slide1">
+        <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="आयुष्मान भारत लोगो" class="logo">
+        <h1>प्रधानमंत्री जन आरोग्य योजना (PMJAY)</h1>
+        <h2>डिजिटल इकोसिस्टम: कॉल सेंटर, CRM और हॉस्पिटल LED डिस्प्ले</h2>
+        <p style="margin-bottom: 30px; color: var(--dark); font-weight: 500;">प्रस्तुति: [तारीख] | फोकस: पारदर्शिता, दक्षता और लाभार्थी सेवा</p>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">10Cr+</div>
+                <div class="stat-text">लाभार्थी परिवार</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50Cr+</div>
+                <div class="stat-text">लाभार्थी व्यक्ति</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5L</div>
+                <div class="stat-text">रुपये प्रति परिवार कवर</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">25K+</div>
+                <div class="stat-text">एम्पैनल्ड अस्पताल</div>
+            </div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">1</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide2">
+        <h2>वर्तमान समस्याएं: सेवा और पारदर्शिता अंतराल</h2>
+        
+        <div class="chart-container" style="height: 350px;">
+            <canvas id="problemsChart"></canvas>
+        </div>
+        
+        <div class="stats-grid" style="grid-template-columns: repeat(5, 1fr); gap: 15px;">
+            <div class="stat-card" style="border-top-color: var(--danger); background: #fefefe;"><i class="fas fa-bullhorn fa-lg" style="color: var(--danger);"></i><div class="stat-text" style="font-weight: bold;">कम जागरूकता (60%)</div></div>
+            <div class="stat-card" style="border-top-color: #e67e22; background: #fefefe;"><i class="fas fa-file-alt fa-lg" style="color: #e67e22;"></i><div class="stat-text" style="font-weight: bold;">जटिल दावा प्रक्रिया</div></div>
+            <div class="stat-card" style="border-top-color: #f1c40f; background: #fefefe;"><i class="fas fa-comment-slash fa-lg" style="color: #f1c40f;"></i><div class="stat-text" style="font-weight: bold;">संचार अंतराल</div></div>
+            <div class="stat-card" style="border-top-color: #555; background: #fefefe;"><i class="fas fa-hospital fa-lg" style="color: #555;"></i><div class="stat-text" style="font-weight: bold;">अस्पताल अस्पष्टता</div></div>
+            <div class="stat-card" style="border-top-color: var(--dark); background: #fefefe;"><i class="fas fa-database fa-lg" style="color: var(--dark);"></i><div class="stat-text" style="font-weight: bold;">बिखरा हुआ डेटा</div></div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">2</span>
+        </div>
+    </section>
+    
+    <section class="slide" id="slide3">
+        <h2>✅ डिजिटल समाधान के दो मुख्य स्तंभ</h2>
+        
+        <p>एक मजबूत सेवा वितरण मॉडल सुनिश्चित करने के लिए दोहरे-चैनल दृष्टिकोण (Dual-Channel Approach)।</p>
+
+        <div style="display: flex; justify-content: space-around; gap: 40px; margin-top: 50px;">
+            <div class="crm-module-card" style="flex: 1; border-left-color: var(--primary); padding: 30px; text-align: center;">
+                <i class="fas fa-headset fa-5x" style="color: var(--primary);"></i>
+                <h3 style="color: var(--primary); border-left: none; text-align: center;">स्तंभ 1: केंद्रीकृत कॉल सेंटर और CRM</h3>
+                <p style="text-align: center; font-size: 1.3rem;">**उद्देश्य:** व्यक्तिगत सहायता, शिकायत निवारण, सक्रिय आउटरीच, और केंद्रीकृत डेटा प्रबंधन।</p>
+                <div class="example-box" style="margin-top: 15px;">
+                    **उदाहरण:** तत्काल **पात्रता जांच** और **दावा ट्रैकिंग**।
                 </div>
             </div>
             
-            <div class="highlight-box">
-                <h3>समाधान के अपेक्षित प्रभाव</h3>
-                <div class="impact-metrics">
-                    <div class="metric-card">
-                        <div class="metric-value">70%</div>
-                        <div class="metric-label">जागरूकता में वृद्धि</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value">50%</div>
-                        <div class="metric-label">दावा प्रसंस्करण समय में कमी</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value">80%</div>
-                        <div class="metric-label">लाभार्थी संतुष्टि में वृद्धि</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value">60%</div>
-                        <div class="metric-label">शिकायत समाधान समय में कमी</div>
-                    </div>
+            <div class="crm-module-card" style="flex: 1; border-left-color: var(--accent); padding: 30px; text-align: center;">
+                <i class="fas fa-tv fa-5x" style="color: var(--accent);"></i>
+                <h3 style="color: var(--accent); border-left: none; text-align: center;">स्तंभ 2: हॉस्पिटल LED/डिजिटल डिस्प्ले</h3>
+                <p style="text-align: center; font-size: 1.3rem;">**उद्देश्य:** अस्पताल के अंदर पारदर्शिता, वेटिंग टाइम की जानकारी, और लाभार्थी अधिकारों की ऑन-साइट घोषणा।</p>
+                <div class="example-box" style="margin-top: 15px; border-left-color: var(--accent);">
+                    **उदाहरण:** OPD में **रियल-टाइम कतार संख्या** और **कैशलेस पैकेज दरें** प्रदर्शित करना।
                 </div>
             </div>
         </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">3</span>
+        </div>
+    </section>
 
-        <div class="content-card animated">
-            <h2>कॉल सेंटर के मुख्य कार्य</h2>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-info-circle"></i>
-                    </div>
-                    <h4>सूचना और जागरूकता</h4>
-                    <p>योजना की बेसिक जानकारी, पात्रता, लाभ, प्रक्रिया के बारे में जानकारी प्रदान करना</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h4>तकनीकी सहायता</h4>
-                    <p>ऑनलाइन पोर्टल, मोबाइल ऐप, और डिजिटल सेवाओं में मार्गदर्शन प्रदान करना</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-comment-medical"></i>
-                    </div>
-                    <h4>शिकायत निवारण</h4>
-                    <p>अस्पतालों में समस्याएं, दावा प्रक्रिया में बाधाएं, और सेवा गुणवत्ता से संबंधित शिकायतों का समाधान</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-ambulance"></i>
-                    </div>
-                    <h4>आपातकालीन सहायता</h4>
-                    <p>तत्काल मेडिकल सहायता की जानकारी और निकटतम एम्पैनल्ड अस्पताल का पता बताना</p>
+    <section class="slide" id="slide4">
+        <h2>स्तंभ 1: 24x7 केंद्रीकृत कॉल सेंटर (टोल-फ्री: 14555)</h2>
+        
+        <div style="display: flex; gap: 30px; align-items: center;">
+            <div style="width: 50%;">
+                <h3 style="color: var(--secondary); border-left-color: var(--secondary); margin-top: 0;"><i class="fas fa-bolt"></i> त्वरित सेवा के लिए बहु-चैनल</h3>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li><i class="fas fa-mobile-alt" style="color: var(--primary); margin-right: 10px;"></i> **इनबाउंड:** तत्काल सहायता और शिकायत निवारण।</li>
+                    <li><i class="fas fa-phone-volume" style="color: var(--primary); margin-right: 10px;"></i> **आउटबाउंड:** जागरूकता, फीडबैक और धोखाधड़ी जांच।</li>
+                    <li><i class="fas fa-language" style="color: var(--primary); margin-right: 10px;"></i> **क्षेत्रीय भाषाएं:** पूरे देश के लिए व्यापक पहुंच सुनिश्चित करना।</li>
+                </ul>
+                <h3 style="color: var(--secondary); border-left-color: var(--secondary);"><i class="fas fa-map-marker-alt"></i> रीयल-टाइम सपोर्ट</h3>
+                <p style="text-align: left; font-size: 1.3rem;">एजेंट तुरंत लाभार्थी की प्रोफाइल, पात्रता और नजदीकी एम्पैनल्ड अस्पतालों की जानकारी दे सकते हैं।</p>
+            </div>
+            <div style="width: 50%;">
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="callCenterChart"></canvas>
                 </div>
             </div>
         </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">4</span>
+        </div>
+    </section>
 
-        <div class="call-center-info animated">
-            <h2>कॉल सेंटर संपर्क जानकारी</h2>
-            <div class="phone-number">14555 / 1800-111-565</div>
-            <div class="timing">24x7 टोल-फ्री हेल्पलाइन</div>
-            <p>मल्टी-लैंग्वेज सपोर्ट | सभी दिन उपलब्ध</p>
+    <section class="slide" id="slide5">
+        <h2>CRM-एकीकृत कॉल सेंटर कार्यप्रणाली</h2>
+        
+        <p><strong>उदाहरण:</strong> लाभार्थी **सुश्री पूजा** की शिकायत का समाधान (अस्पताल में कैशलेस से इनकार)।</p>
+
+        <div class="workflow-diagram" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; text-align: center; gap: 10px;">
+            <div class="flow-step stat-card" style="border-top-color: var(--primary);"><i class="fas fa-phone-alt fa-2x" style="color: var(--primary);"></i><h4 style="font-size: 1.3rem;">1. लाभार्थी कॉल</h4><p style="font-size: 1rem;">14555 पर शिकायत</p></div>
+            <i class="fas fa-arrow-right flow-arrow" style="color: var(--secondary); font-size: 2.0rem; flex-shrink: 0;"></i>
+            <div class="flow-step stat-card" style="border-top-color: var(--secondary);"><i class="fas fa-desktop fa-2x" style="color: var(--secondary);"></i><h4 style="font-size: 1.3rem;">2. CRM स्क्रीन-पॉप</h4><p style="font-size: 1rem;">ID से 3 सेकंड में रिकॉर्ड लोड</p></div>
+            <i class="fas fa-arrow-right flow-arrow" style="color: var(--secondary); font-size: 2.0rem; flex-shrink: 0;"></i>
+            <div class="flow-step stat-card" style="border-top-color: var(--accent);"><i class="fas fa-shield-alt fa-2x" style="color: var(--accent);"></i><h4 style="font-size: 1.3rem;">3. तत्काल हस्तक्षेप</h4><p style="font-size: 1rem;">एजेंट अस्पताल को कॉल करता है</p></div>
+            <i class="fas fa-arrow-right flow-arrow" style="color: var(--secondary); font-size: 2.0rem; flex-shrink: 0;"></i>
+            <div class="flow-step stat-card" style="border-top-color: var(--success);"><i class="fas fa-check-circle fa-2x" style="color: var(--success);"></i><h4 style="font-size: 1.3rem;">4. FCR & समाधान</h4><p style="font-size: 1rem;">फर्स्ट कॉल रिज़ॉल्यूशन (FCR) दर में वृद्धि</p></div>
+        </div>
+        
+        <h3 style="margin-top: 30px; text-align: center; color: var(--dark); border-left: none; padding-left: 0;">CRM: 360-डिग्री व्यू प्रदान करता है, जिससे समाधान का समय (AHT) 50% तक कम हो जाता है।</h3>
+
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">5</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide6">
+        <h2>CRM मॉड्यूल: डेटा एकीकरण और प्रबंधन</h2>
+        
+        <div class="detail-grid">
+            <div class="crm-module-card" style="border-left-color: var(--primary);">
+                <i class="fas fa-users fa-3x" style="color: var(--primary);"></i>
+                <h4 style="color: var(--primary); text-align: left;">1. लाभार्थी प्रोफाइल</h4>
+                <p style="text-align: left; font-size: 1.2rem;">ID, पात्रता, उपचार इतिहास और भौगोलिक डेटा को समेकित करना।</p>
+                <div class="example-box">**उदाहरण:** लाभार्थी के सभी पिछले उपचार (उपयोग किए गए लाभ) एक ही स्थान पर दिखते हैं।</div>
+            </div>
+            
+            <div class="crm-module-card" style="border-left-color: var(--secondary);">
+                <i class="fas fa-money-check-alt fa-3x" style="color: var(--secondary);"></i>
+                <h4 style="color: var(--secondary); text-align: left;">2. दावा ट्रैकिंग</h4>
+                <p style="text-align: left; font-size: 1.2rem;">क्लेम सबमिशन से भुगतान तक प्रत्येक चरण की रीयल-टाइम स्थिति।</p>
+                <div class="example-box">**उदाहरण:** एजेंट लाभार्थी को बताता है: "आपका क्लेम ID 45789 **'समीक्षाधीन (Under Review)'** है, 4 दिन में निपटा जाएगा।"</div>
+            </div>
+            
+            <div class="crm-module-card" style="border-left-color: var(--accent);">
+                <i class="fas fa-hospital fa-3x" style="color: var(--accent);"></i>
+                <h4 style="color: var(--accent); text-align: left;">3. अस्पताल प्रबंधन</h4>
+                <p style="text-align: left; font-size: 1.2rem;">विशेषज्ञता, बिस्तर उपलब्धता और क्लेम निपटान दक्षता का प्रदर्शन।</p>
+                <div class="example-box">**उदाहरण:** एजेंट **न्यूरोलॉजी** के लिए 10 किमी के भीतर उच्चतम रेटिंग वाले 3 अस्पताल सुझाता है।</div>
+            </div>
+            
+            <div class="crm-module-card" style="border-left-color: var(--dark);">
+                <i class="fas fa-chart-line fa-3x" style="color: var(--dark);"></i>
+                <h4 style="color: var(--dark); text-align: left;">4. शिकायत विश्लेषण</h4>
+                <p style="text-align: left; font-size: 1.2rem;">उच्च शिकायत वाले क्षेत्रों/अस्पतालों की पहचान और निवारण (Remediation) के लिए अलर्ट।</p>
+                <div class="example-box">**उदाहरण:** सिस्टम **'अतिरिक्त शुल्क'** की शिकायतों में 50% की वृद्धि को फ़्लैग करता है।</div>
+            </div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">6</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide7">
+        <h2>स्तंभ 2: हॉस्पिटल LED डिस्प्ले प्रोजेक्ट</h2>
+        
+        <p>अस्पताल परिसर के भीतर **पारदर्शिता** और **सशक्तिकरण** के लिए रीयल-टाइम सूचना प्रणाली।</p>
+
+        <div style="display: flex; justify-content: space-around; gap: 30px; margin-top: 40px; text-align: center;">
+            <div class="led-feature" style="border-color: var(--primary);">
+                <i class="fas fa-hospital-alt fa-5x"></i>
+                <h4 style="color: var(--primary);">लक्ष्य: 100% ऑन-साइट पारदर्शिता</h4>
+                <p style="font-size: 1.1rem;">लाभार्थियों को अस्पताल में अपनी यात्रा के दौरान सही जानकारी प्राप्त हो।</p>
+            </div>
+            <div class="led-feature" style="border-color: var(--secondary);">
+                <i class="fas fa-list-alt fa-5x"></i>
+                <h4 style="color: var(--secondary);">सामग्री: पैकेज और अधिकार</h4>
+                <p style="font-size: 1.1rem;">PMJAY के तहत कवर किए गए प्रमुख उपचार पैकेज और लाभार्थी के अधिकार/कर्तव्य प्रदर्शित करना।</p>
+            </div>
+            <div class="led-feature" style="border-color: var(--accent);">
+                <i class="fas fa-clock fa-5x"></i>
+                <h4 style="color: var(--accent);">रीयल-टाइम डेटा</h4>
+                <p style="font-size: 1.1rem;">वेटिंग टाइम, बेड की उपलब्धता, और बीमा प्राधिकरण की स्थिति का लाइव अपडेट।</p>
+            </div>
         </div>
 
-        <div class="content-card animated">
-            <h2>CRM सिस्टम की आवश्यक विशेषताएं</h2>
+        <h3 style="margin-top: 40px; text-align: center; border-left: none; padding-left: 0;">LED का लाभ: ऑन-साइट संचार अंतराल को समाप्त करता है, स्टाफ और रोगी के बीच तनाव कम करता है।</h3>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">7</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide8">
+        <h2>LED डिस्प्ले: रीयल-टाइम डेटा और नागरिक चार्टर</h2>
+        
+        <p>अस्पताल में प्रमुख स्थानों (OPD, प्रवेश द्वार, बिलिंग काउंटर) पर डेटा का प्रदर्शन।</p>
+
+        <div class="led-data-display">
+            <div class="data-item" style="border-top: 5px solid var(--primary);">
+                <i class="fas fa-stopwatch fa-2x" style="color: var(--primary);"></i>
+                <span class="number">15 Mins</span>
+                <span style="font-weight: bold; font-size: 1.2rem;">औसत वेटिंग टाइम (OPD)</span>
+            </div>
+            <div class="data-item" style="border-top: 5px solid var(--secondary);">
+                <i class="fas fa-file-invoice fa-2x" style="color: var(--secondary);"></i>
+                <span class="number">98%</span>
+                <span style="font-weight: bold; font-size: 1.2rem;">क्लेम निपटान दर (मासिक)</span>
+            </div>
+            <div class="data-item" style="border-top: 5px solid var(--accent);">
+                <i class="fas fa-bed fa-2x" style="color: var(--accent);"></i>
+                <span class="number">12/50</span>
+                <span style="font-weight: bold; font-size: 1.2rem;">PMJAY बेड उपलब्धता</span>
+            </div>
+        </div>
+        
+        <h3 style="color: var(--dark); border-left-color: var(--dark); margin-top: 40px;">नागरिक चार्टर संदेश (Scrolling Ticker)</h3>
+        <p style="text-align: left; font-size: 1.3rem;">**उदाहरण:** *"PMJAY के तहत सभी कवर उपचार मुफ्त हैं। यदि आपसे शुल्क माँगा जाए, तो तत्काल 14555 पर शिकायत करें।"*</p>
+        <p style="text-align: left; font-size: 1.3rem;">**उदाहरण:** *"Ayushman Card बनाने के लिए केवल 15 मिनट लगते हैं। संपर्क: आयुष्मान मित्र।"*</p>
+
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">8</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide9">
+        <h2>LED + कॉल सेंटर: रीयल-टाइम तालमेल</h2>
+        
+        <p>दोनों स्तंभ एक-दूसरे को मजबूत करते हैं, एक **आउटडोर** (LED) पारदर्शिता प्रदान करता है, और दूसरा **इनडोर** (कॉल सेंटर/CRM) समाधान प्रदान करता है।</p>
+
+        <div style="display: flex; justify-content: space-around; align-items: center; gap: 20px; margin-top: 40px;">
+            <div class="stat-card" style="flex: 1; border-top-color: var(--primary);">
+                <i class="fas fa-exchange-alt fa-3x" style="color: var(--primary);"></i>
+                <h4 style="color: var(--primary);">1. संकट चेतावनी (Crisis Alert)</h4>
+                <p style="text-align: center; font-size: 1.2rem;">यदि LED डिस्प्ले **ओवरलोडिंग** (लंबा वेटिंग टाइम) दिखाता है, तो CRM टीम **सक्रिय आउटबाउंड कॉल** के लिए अलर्ट हो जाती है।</p>
+            </div>
             
-            <div class="highlight-box">
-                <h3>कोर CRM मॉड्यूल</h3>
-                <div class="workflow">
-                    <div class="workflow-step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h4>लाभार्थी प्रबंधन</h4>
-                            <p>लाभार्थी डेमोग्राफिक डेटा, पारिवारिक जानकारी, आय स्थिति, स्वास्थ्य इतिहास और दावा इतिहास का प्रबंधन</p>
-                        </div>
-                        <div class="step-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="workflow-step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h4>अस्पताल प्रबंधन</h4>
-                            <p>एम्पैनलमेंट स्टेटस, बिस्तर उपलब्धता, विशेषज्ञता क्षेत्र, प्रदर्शन मेट्रिक्स और वित्तीय लेनदेन प्रबंधन</p>
-                        </div>
-                        <div class="step-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="workflow-step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h4>दावा प्रबंधन</h4>
-                            <p>दावा आवेदन ट्रैकिंग, दस्तावेज़ सत्यापन, अनुमोदन प्रक्रिया, भुगतान ट्रैकिंग और अस्वीकृति प्रबंधन</p>
-                        </div>
-                    </div>
+            <i class="fas fa-arrow-right fa-3x" style="color: var(--secondary);"></i>
+            
+            <div class="stat-card" style="flex: 1; border-top-color: var(--accent);">
+                <i class="fas fa-search-plus fa-3x" style="color: var(--accent);"></i>
+                <h4 style="color: var(--accent);">2. सत्यापन में सहायता (Verification Support)</h4>
+                <p style="text-align: center; font-size: 1.2rem;">कॉल सेंटर एजेंट LED द्वारा प्रदर्शित **रीयल-टाइम डेटा** (जैसे बेड की उपलब्धता) का उपयोग करके लाभार्थी की सहायता करते हैं।</p>
+            </div>
+            
+            <i class="fas fa-arrow-right fa-3x" style="color: var(--secondary);"></i>
+
+            <div class="stat-card" style="flex: 1; border-top-color: var(--dark);">
+                <i class="fas fa-undo-alt fa-3x" style="color: var(--dark);"></i>
+                <h4 style="color: var(--dark);">3. फीडबैक लूप (Feedback Loop)</h4>
+                <p style="text-align: center; font-size: 1.2rem;">LED पर प्रदर्शित जानकारी गलत होने पर, लाभार्थी तुरंत 14555 पर कॉल करता है, और CRM **डेटा त्रुटि** को फ़्लैग करता है।</p>
+            </div>
+        </div>
+
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">9</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide10">
+        <h2>अपेक्षित प्रभाव: मेट्रिक्स में सुधार और ROI</h2>
+        
+        <div class="comparison-chart" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-top: 30px;">
+            <div class="comparison-item before" style="padding: 15px; border: 2px solid var(--danger); border-radius: 10px; background: #fef5f5; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);">
+                <h3 style="color: var(--danger); border-left: none; padding-left: 0; text-align: center;">वर्तमान स्थिति (Current)</h3>
+                <style>
+                    .progress-container { margin-bottom: 20px; }
+                    .progress-label { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+                    .progress-bar { height: 25px; background: #eee; border-radius: 12px; overflow: hidden; }
+                    .progress-fill { height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border-radius: 12px; }
+                </style>
+                <div class="progress-container"><div class="progress-label"><span>जागरूकता</span><span>40%</span></div><div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--danger);">40%</div></div></div>
+                <div class="progress-container"><div class="progress-label"><span>दावा प्रसंस्करण समय</span><span>30 दिन</span></div><div class="progress-bar"><div class="progress-fill" style="width: 30%; background: var(--danger);">30 दिन</div></div></div>
+                <div class="progress-container"><div class="progress-label"><span>अस्पताल वेट टाइम (औसत)</span><span>2 घंटे</span></div><div class="progress-bar"><div class="progress-fill" style="width: 50%; background: var(--danger);">2 घंटे</div></div></div>
+            </div>
+            
+            <div class="comparison-item after" style="padding: 15px; border: 2px solid var(--success); border-radius: 10px; background: #f5fff5; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);">
+                <h3 style="color: var(--success); border-left: none; padding-left: 0; text-align: center;">समाधान के बाद (Expected)</h3>
+                <div class="progress-container"><div class="progress-label"><span>जागरूकता</span><span>85%</span></div><div class="progress-bar"><div class="progress-fill" style="width: 85%; background: var(--success);">85%</div></div></div>
+                <div class="progress-container"><div class="progress-label"><span>दावा प्रसंस्करण समय</span><span>7 दिन</span></div><div class="progress-bar"><div class="progress-fill" style="width: 80%; background: var(--success);">7 दिन</div></div></div>
+                <div class="progress-container"><div class="progress-label"><span>अस्पताल वेट टाइम (औसत)</span><span>30 मिनट</span></div><div class="progress-bar"><div class="progress-fill" style="width: 85%; background: var(--success);">30 मिनट</div></div></div>
+            </div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">10</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide11">
+        <h2>AI और ऑटोमेशन: कॉल सेंटर दक्षता</h2>
+        
+        <p>AI/ML समाधान 40% तक सामान्य इंटरैक्शन को संभालते हैं, एजेंटों को जटिल मामलों के लिए मुक्त करते हैं।</p>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 25px; margin-top: 40px;">
+            <div class="ai-flow-step detail-card" style="border-left-color: var(--primary); flex: 1; text-align: center;">
+                <i class="fas fa-comments fa-4x" style="color: var(--primary); margin-bottom: 10px;"></i>
+                <h4 style="color: var(--primary);">चैटबॉट / व्हाट्सएप सपोर्ट</h4>
+                <p style="text-align: left; font-size: 1.2rem;">**कार्य:** सरल प्रश्न (पात्रता, कार्ड लिंक), FAQ, अस्पताल निर्देशिका।</p>
+                <div class="example-box">
+                    **उदाहरण:** उपयोगकर्ता टाइप करता है: **"नजदीकी अस्पताल बताओ।"** बॉट CRM से डेटा खींचकर GPS आधारित सूची देता है।
                 </div>
             </div>
             
-            <h3>CRM के लाभ</h3>
-            <ul class="benefits-list">
-                <li><i class="fas fa-chart-line"></i> <strong>70% कम मैनुअल डेटा एंट्री</strong> - ऑटोमेशन के माध्यम से दक्षता में वृद्धि</li>
-                <li><i class="fas fa-bolt"></i> <strong>50% तेज दावा प्रसंस्करण</strong> - स्वचालित वर्कफ्लो के साथ</li>
-                <li><i class="fas fa-database"></i> <strong>90% बेहतर डेटा सटीकता</strong> - केंद्रीकृत डेटा प्रबंधन के साथ</li>
-                <li><i class="fas fa-clock"></i> <strong>60% कम शिकायत समाधान समय</strong> - कुशल टिकटिंग सिस्टम के साथ</li>
-            </ul>
-        </div>
-
-        <div class="content-card animated">
-            <h2>CRM और कॉल सेंटर एकीकरण</h2>
-            
-            <div class="integration-diagram">
-                <h3>एकीकरण प्रक्रिया</h3>
-                <div class="diagram">
-                    <div class="diagram-item">
-                        <h4>कॉल रिसेप्शन</h4>
-                        <p>IVR सिस्टम के माध्यम से कॉल स्वागत</p>
-                    </div>
-                    <div class="diagram-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div class="diagram-item">
-                        <h4>CRM एकीकरण</h4>
-                        <p>कॉलर डेटा CRM में स्वचालित रूप से लोड</p>
-                    </div>
-                    <div class="diagram-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div class="diagram-item">
-                        <h4>समाधान प्रदान</h4>
-                        <p>एजेंट द्वारा CRM डेटा का उपयोग करके समाधान</p>
-                    </div>
-                    <div class="diagram-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div class="diagram-item">
-                        <h4>डेटा अद्यतन</h4>
-                        <p>CRM में कॉल विवरण और समाधान अपडेट</p>
-                    </div>
+            <div class="ai-flow-step detail-card" style="border-left-color: var(--accent); flex: 1; text-align: center;">
+                <i class="fas fa-microphone-alt fa-4x" style="color: var(--accent); margin-bottom: 10px;"></i>
+                <h4 style="color: var(--accent);">वॉयस बॉट (IVR) और NLP</h4>
+                <p style="text-align: left; font-size: 1.2rem;">**कार्य:** क्लेम की स्थिति, बैलेंस चेक, शिकायत पंजीकरण (Natural Language Processing का उपयोग करके)।</p>
+                <div class="example-box" style="border-left-color: var(--accent);">
+                    **उदाहरण:** उपयोगकर्ता बोलता है: **"मेरा इलाज का स्टेटस क्या है?"** बॉट ID पूछकर रीयल-टाइम स्टेटस पढ़कर सुनाता है।
                 </div>
             </div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">11</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide12">
+        <h2>बहु-चैनल जागरूकता रणनीति (Call Center, LED, Digital)</h2>
+        
+        <div class="content-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="content-card detail-card" style="border-left-color: var(--primary); padding: 15px; background: #fcfcfc;">
+                <h4 style="color: var(--primary); margin-top: 0; text-align: left;"><i class="fas fa-headset"></i> कॉल सेंटर (आउटबाउंड)</h4>
+                <ul style="padding-left: 20px; font-size: 1.2rem;">
+                    <li>नये लाभार्थियों को ऑनबोर्डिंग कॉल।</li>
+                    <li>योजना के बदलावों की जानकारी देना।</li>
+                    <li>इलाज के बाद फीडबैक कॉल।</li>
+                </ul>
+            </div>
             
-            <div class="highlight-box">
-                <h4>एकीकरण के लाभ</h4>
-                <ul>
-                    <li>रियल-टाइम डेटा एक्सेस</li>
-                    <li>सीमलेस कम्युनिकेशन</li>
-                    <li>बेहतर ग्राहक अनुभव</li>
-                    <li>डेटा सटीकता में सुधार</li>
-                    <li>प्रक्रिया दक्षता में वृद्धि</li>
+            <div class="content-card detail-card" style="border-left-color: var(--accent); padding: 15px; background: #fcfcfc;">
+                <h4 style="color: var(--accent); margin-top: 0; text-align: left;"><i class="fas fa-tv"></i> हॉस्पिटल LED डिस्प्ले</h4>
+                <ul style="padding-left: 20px; font-size: 1.2rem;">
+                    <li>PMJAY मुफ्त है - अनिवार्य घोषणा।</li>
+                    <li>कार्ड बनाने की प्रक्रिया (आयुष्मान मित्र)।</li>
+                    <li>धोखाधड़ी विरोधी टोल-फ्री नंबर का प्रदर्शन।</li>
+                </ul>
+            </div>
+            
+            <div class="content-card detail-card" style="border-left-color: var(--secondary); padding: 15px; background: #fcfcfc;">
+                <h4 style="color: var(--secondary); margin-top: 0; text-align: left;"><i class="fas fa-envelope-open-text"></i> SMS/ईमेल अलर्ट</h4>
+                <ul style="padding-left: 20px; font-size: 1.2rem;">
+                    <li>पात्रता नवीनीकरण की सूचना।</li>
+                    <li>क्लेम भुगतान होने पर सूचना।</li>
+                    <li>नए अस्पताल के एम्पैनलमेंट की सूचना।</li>
                 </ul>
             </div>
         </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">12</span>
+        </div>
+    </section>
 
-        <div class="content-card animated">
-            <h2>निष्कर्ष</h2>
-            <p>प्रधानमंत्री जन आरोग्य योजना में कॉल सेंटर और CRM सिस्टम <strong>एक आवश्यक और अपरिहार्य घटक</strong> है। यह न केवल योजना की सफलता सुनिश्चित करता है बल्कि <strong>लाभार्थियों के विश्वास</strong> को भी मजबूत करता है।</p>
-            
-            <div class="highlight-box">
-                <h3>भविष्य की संभावनाएं</h3>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <h4>आर्टिफिशियल इंटेलिजेंस</h4>
-                        <p>चैटबॉट और वर्चुअल असिस्टेंट का उपयोग</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <h4>प्रेडिक्टिव एनालिटिक्स</h4>
-                        <p>डेटा विश्लेषण के माध्यम से भविष्यवाणी</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4>मोबाइल फर्स्ट एप्रोच</h4>
-                        <p>मोबाइल ऐप के माध्यम से बेहतर पहुंच</p>
-                    </div>
+    <section class="slide" id="slide13">
+        <h2>🛡️ धोखाधड़ी रोकथाम: CRM डेटा और बायोमेट्रिक्स</h2>
+        
+        <div class="detail-grid">
+            <div class="crm-module-card" style="border-left-color: var(--danger);">
+                <i class="fas fa-lock fa-3x" style="color: var(--danger);"></i>
+                <h4 style="color: var(--danger); text-align: left;">1. AI-आधारित फ्रॉड अलर्ट</h4>
+                <p style="text-align: left; font-size: 1.2rem;">CRM डेटा में **असामान्य बिलिंग पैटर्न**, **अतिरिक्त निदान**, या **बार-बार एक ही प्रक्रिया** को चिह्नित करता है।</p>
+                <div class="example-box" style="border-left: 4px solid var(--danger);">
+                    **उदाहरण:** एक अस्पताल में क्लेम की संख्या अचानक **300%** बढ़ जाती है।
                 </div>
             </div>
             
-            <div class="call-center-info">
-                <h3>कॉल सेंटर के बिना PMJAY योजना अधूरी है</h3>
-                <p>यह योजना और लाभार्थियों के बीच की मिसिंग लिंक को पूरा करता है</p>
+            <div class="crm-module-card" style="border-left-color: var(--primary);">
+                <i class="fas fa-fingerprint fa-3x" style="color: var(--primary);"></i>
+                <h4 style="color: var(--primary); text-align: left;">2. बायोमेट्रिक और जियोटैगिंग</h4>
+                <p style="text-align: left; font-size: 1.2rem;">अस्पताल में भर्ती और छुट्टी के समय लाभार्थी की **बायोमेट्रिक पुष्टि** अनिवार्य। **(Geotagging** का उपयोग)।</p>
+                <div class="example-box">
+                    **उदाहरण:** यदि बायोमेट्रिक्स मिलान नहीं होता है, तो LED पर **'अस्वीकृत'** फ्लैश होता है और कॉल सेंटर को अलर्ट जाता है।
+                </div>
+            </div>
+            
+            <div class="crm-module-card" style="border-left-color: var(--accent);">
+                <i class="fas fa-user-shield fa-3x" style="color: var(--accent);"></i>
+                <h4 style="color: var(--accent); text-align: left;">3. अस्पताल प्रदर्शन स्कोर</h4>
+                <p style="text-align: left; font-size: 1.2rem;">दावों की अस्वीकृति दर, ऑडिट स्कोर और शिकायत वॉल्यूम के आधार पर **अस्पताल रेटिंग**।</p>
+                <div class="example-box" style="border-left: 4px solid var(--accent);">
+                    **उदाहरण:** खराब स्कोर वाले अस्पताल को स्वचालित रूप से **अधिक ऑडिट** के लिए चिह्नित किया जाता है।
+                </div>
+            </div>
+            
+            <div class="crm-module-card" style="border-left-color: var(--secondary);">
+                <i class="fas fa-clipboard-list fa-3x" style="color: var(--secondary);"></i>
+                <h4 style="color: var(--secondary); text-align: left;">4. LED पर धोखाधड़ी विरोधी संदेश</h4>
+                <p style="text-align: left; font-size: 1.2rem;">अस्पताल के वेटिंग एरिया में **स्पष्ट चेतावनी** और टोल-फ्री नंबर का लगातार प्रदर्शन।</p>
+                <div class="example-box" style="border-left: 4px solid var(--secondary);">
+                    **उदाहरण:** **"आयुष्मान कार्ड का उपयोग केवल आप ही कर सकते हैं। दुरुपयोग दंडनीय अपराध है।"**
+                </div>
             </div>
         </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">13</span>
+        </div>
+    </section>
 
-        <footer class="animated">
-            <img src="https://www.pmjay.gov.in/sites/default/files/2024-02/ayushman-bharat-logo-new.png" alt="आयुष्मान भारत लोगो" class="footer-logo">
-            <p>प्रधानमंत्री जन आरोग्य योजना - आयुष्मान भारत</p>
-            <p>स्वस्थ भारत, समृद्ध भारत</p>
-            <p>हेल्पलाइन: <strong>14555 / 1800-111-565</strong></p>
-        </footer>
-    </div>
+    <section class="slide" id="slide14">
+        <h2>🗓️ कार्यान्वयन रोडमैप: 12 माह की योजना</h2>
+        
+        <div class="chart-container" style="height: 350px;">
+            <canvas id="timelineChart"></canvas>
+        </div>
+        
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 30px; text-align: center;">
+            <div style="font-weight: bold; color: var(--primary);">माह 1-3: नियोजन & प्रोक्योरमेंट</div>
+            <div style="font-weight: bold; color: var(--secondary);">माह 4-7: विकास & LED पायलट</div>
+            <div style="font-weight: bold; color: var(--accent);">माह 8-10: एकीकरण & प्रशिक्षण</div>
+            <div style="font-weight: bold; color: var(--dark);">माह 11-12: राष्ट्रीय रोलआउट</div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">14</span>
+        </div>
+    </section>
 
-    <script>
-        // Add animation on scroll
-        document.addEventListener('DOMContentLoaded', function() {
-            const animatedElements = document.querySelectorAll('.animated');
+    <section class="slide" id="slide15">
+        <h2>LED प्रोजेक्ट: तकनीकी आवश्यकताएं और स्केल</h2>
+        
+        <p>हॉस्पिटल डिस्प्ले सिस्टम के लिए आवश्यक मुख्य तकनीकी घटक।</p>
+        
+        <div class="detail-grid">
+            <div class="detail-card" style="border-left-color: var(--primary);">
+                <i class="fas fa-server fa-3x" style="color: var(--primary);"></i>
+                <h4 style="color: var(--primary); text-align: left;">1. केंद्रीय सामग्री प्रबंधन प्रणाली (CMS)</h4>
+                <p style="text-align: left; font-size: 1.2rem;">सभी LED को दूर से प्रबंधित करने के लिए वेब-आधारित इंटरफ़ेस। (Centralized Control)</p>
+            </div>
+            <div class="detail-card" style="border-left-color: var(--secondary);">
+                <i class="fas fa-ethernet fa-3x" style="color: var(--secondary);"></i>
+                <h4 style="color: var(--secondary); text-align: left;">2. कनेक्टिविटी</h4>
+                <p style="text-align: left; font-size: 1.2rem;">अस्पताल प्रबंधन प्रणाली (HMIS) और केंद्रीय PMJAY सर्वर से रीयल-टाइम डेटा खींचने के लिए API।</p>
+            </div>
+            <div class="detail-card" style="border-left-color: var(--accent);">
+                <i class="fas fa-hdd fa-3x" style="color: var(--accent);"></i>
+                <h4 style="color: var(--accent); text-align: left;">3. हार्डवेयर स्पेसिफिकेशन्स</h4>
+                <p style="text-align: left; font-size: 1.2rem;">कम से कम **55 इंच** के उच्च-रिज़ॉल्यूशन वाले डिस्प्ले, औद्योगिक ग्रेड मीडिया प्लेयर के साथ।</p>
+            </div>
+            <div class="detail-card" style="border-left-color: var(--dark);">
+                <i class="fas fa-language fa-3x" style="color: var(--dark);"></i>
+                <h4 style="color: var(--dark); text-align: left;">4. मल्टी-लिंगुअल सपोर्ट</h4>
+                <p style="text-align: left; font-size: 1.2rem;">प्रत्येक राज्य की प्रमुख स्थानीय भाषाओं में सामग्री प्रदर्शित करने की क्षमता।</p>
+            </div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">15</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide16">
+        <h2>कॉल सेंटर एजेंट प्रशिक्षण फोकस</h2>
+        
+        <p>प्रभावी और संवेदनशील सेवा सुनिश्चित करने के लिए विशेष प्रशिक्षण क्षेत्र।</p>
+        
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="stat-card" style="border-top-color: var(--primary);">
+                <i class="fas fa-hand-holding-medical fa-2x" style="color: var(--primary);"></i>
+                <div class="stat-text" style="font-weight: bold;">योजना ज्ञान</div>
+                <p style="font-size: 1.1rem; margin-bottom: 0;">सभी पैकेज, बहिष्करण (Exclusions) और नवीनतम दिशानिर्देशों का गहन ज्ञान।</p>
+            </div>
+            <div class="stat-card" style="border-top-color: var(--secondary);">
+                <i class="fas fa-user-friends fa-2x" style="color: var(--secondary);"></i>
+                <div class="stat-text" style="font-weight: bold;">सहानुभूति और संवेदनशीलता</div>
+                <p style="font-size: 1.1rem; margin-bottom: 0;">तनाव में चल रहे लाभार्थियों के प्रति विनम्रता और भावनात्मक समर्थन।</p>
+            </div>
+            <div class="stat-card" style="border-top-color: var(--accent);">
+                <i class="fas fa-search-dollar fa-2x" style="color: var(--accent);"></i>
+                <div class="stat-text" style="font-weight: bold;">धोखाधड़ी और ऑडिटिंग</div>
+                <p style="font-size: 1.1rem; margin-bottom: 0;">धोखाधड़ी के संकेतों को पहचानना और CRM में ऑडिट लॉग को ठीक से दर्ज करना।</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h4 style="text-align: center; color: var(--dark);">लक्ष्य: 95% गुणवत्ता स्कोर और 80% FCR (First Call Resolution)</h4>
+        </div>
+
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">16</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide17">
+        <h2>लागत विश्लेषण और निवेश पर रिटर्न (ROI)</h2>
+        
+        <div class="cost-analysis" style="background: #f0f0f0; border-radius: 10px; padding: 25px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);">
+            <h3 style="border-left-color: var(--primary); color: var(--primary);">परियोजना की अनुमानित लागत (उदाहरण)</h3>
+            <div class="cost-grid stats-grid" style="grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                <div class="cost-item stat-card" style="border-top-color: #e74c3c;">
+                    <div class="cost-label" style="font-size: 1.2rem;">CRM & AI विकास</div>
+                    <div class="cost-value" style="color: #e74c3c; font-size: 1.8rem; font-weight: bold;">₹ XX Cr</div>
+                </div>
+                <div class="cost-item stat-card" style="border-top-color: #e67e22;">
+                    <div class="cost-label" style="font-size: 1.2rem;">कॉल सेंटर ऑपरेशन (सालाना)</div>
+                    <div class="cost-value" style="color: #e67e22; font-size: 1.8rem; font-weight: bold;">₹ XX Cr</div>
+                </div>
+                <div class="cost-item stat-card" style="border-top-color: #3498db;">
+                    <div class="cost-label" style="font-size: 1.2rem;">LED हार्डवेयर/इंस्टॉलेशन</div>
+                    <div class="cost-value" style="color: #3498db; font-size: 1.8rem; font-weight: bold;">₹ XX Cr</div>
+                </div>
+                <div class="cost-item stat-card" style="border-top-color: var(--accent);">
+                    <div class="cost-label" style="font-size: 1.2rem;">प्रशिक्षण और रखरखाव</div>
+                    <div class="cost-value" style="color: var(--accent); font-size: 1.8rem; font-weight: bold;">₹ XX Cr</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="roi-calculation" style="background: linear-gradient(135deg, var(--primary) 0%, #2a5298 100%); color: white; text-align: center; margin-top: 30px; padding: 30px; border-radius: 15px;">
+            <div class="roi-title" style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;">रिटर्न ऑन इन्वेस्टमेंट (ROI) - 3 वर्षों में</div>
+            <p style="font-size: 1.4rem;">दक्षता में वृद्धि, धोखाधड़ी से बचत, और योजना का सामाजिक प्रभाव।</p>
+            <div class="roi-value" style="font-size: 3rem; font-weight: bold; color: var(--secondary); margin-top: 15px;">4X तक</div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">17</span>
+        </div>
+    </section>
+
+    <section class="slide" id="slide18">
+        <h2>निष्कर्ष: PMJAY का भविष्य</h2>
+        
+        <div class="chart-container" style="height: 300px;">
+            <canvas id="conclusionChart"></canvas>
+        </div>
+        
+        <div class="conclusion-box" style="background: var(--light); border: 3px solid var(--primary); padding: 25px; border-radius: 15px; margin-top: 30px; text-align: center; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);">
+            <p style="font-size: 1.8rem; font-weight: bold; color: var(--primary);">कॉल सेंटर, CRM और LED डिस्प्ले मिलकर एक **पारदर्शी, कुशल और लाभार्थी-केंद्रित** सेवा वितरण सुनिश्चित करते हैं।</p>
             
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationPlayState = 'running';
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
+            <div class="quote" style="font-size: 1.6rem; color: var(--secondary); margin-top: 15px;">"डिजिटल समाधान से ही अंतिम मील (Last Mile) तक स्वास्थ्य सेवा का लाभ पहुँचेगा।"</div>
             
-            animatedElements.forEach(element => {
-                element.style.animationPlayState = 'paused';
-                observer.observe(element);
-            });
-            
-            // Add hover effects to stat cards
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05)';
+            <div style="margin-top: 25px; font-size: 2.2rem; font-weight: 700; color: var(--dark);">
+                <span style="color: var(--primary);">धन्यवाद।</span>
+                <span style="color: var(--secondary); margin-left: 20px;">टोल फ्री: 14555</span>
+            </div>
+        </div>
+        
+        <div class="slide-footer">
+            <img src="uploaded:PMJAY.png-631b47ba-3cc3-448e-86a8-0078e6554094" alt="Ayushman Bharat Logo" class="footer-logo">
+            <span>PMJAY | डिजिटल इकोसिस्टम</span>
+            <span class="slide-number">18</span>
+        </div>
+    </section>
+
+    </div> <script>
+        let currentSlideIndex = 1;
+        const totalSlides = 18; // Updated to 18 slides
+
+        function showSlide(index) {
+            if (index < 1 || index > totalSlides) return;
+            currentSlideIndex = index;
+
+            const targetSlide = document.getElementById(`slide${currentSlideIndex}`);
+            if (targetSlide) {
+                targetSlide.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
                 });
                 
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
+                document.querySelectorAll('.slide').forEach(slide => {
+                    slide.classList.remove('focused');
                 });
+                targetSlide.classList.add('focused');
+
+                history.replaceState(null, null, `#slide${currentSlideIndex}`);
+            }
+
+            updateNavButtons();
+        }
+
+        function updateNavButtons() {
+            document.querySelectorAll('.nav-controls a').forEach(a => {
+                a.classList.remove('active');
+                if (parseInt(a.getAttribute('data-slide')) === currentSlideIndex) {
+                    a.classList.add('active');
+                }
             });
+        }
+        
+        window.addEventListener('load', () => {
+            const initialHash = window.location.hash.match(/#slide(\d+)/);
+            let initialSlide = 1;
+            if (initialHash && parseInt(initialHash[1]) >= 1 && parseInt(initialHash[1]) <= totalSlides) {
+                initialSlide = parseInt(initialHash[1]);
+            }
+            showSlide(initialSlide);
+            
+            window.addEventListener('scroll', throttle(checkSlideVisibility, 100));
+
+            initializeCharts();
         });
+
+        function throttle(fn, wait) {
+            let lastTime = 0;
+            return function(...args) {
+                const now = Date.now();
+                if (now - lastTime >= wait) {
+                    lastTime = now;
+                    fn.apply(this, args);
+                }
+            };
+        }
+
+        function checkSlideVisibility() {
+            const slides = document.querySelectorAll('.slide');
+            const viewportCenter = window.innerHeight / 2;
+            let closestSlideIndex = currentSlideIndex;
+            let minDistance = Infinity;
+
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                const slideCenter = rect.top + rect.height / 2;
+                const distance = Math.abs(slideCenter - viewportCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestSlideIndex = index + 1;
+                }
+            });
+
+            if (closestSlideIndex !== currentSlideIndex) {
+                currentSlideIndex = closestSlideIndex;
+                updateNavButtons();
+            }
+
+            slides.forEach((slide) => {
+                const rect = slide.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight - 50 && rect.bottom > 50; 
+                if (isVisible) {
+                    slide.classList.add('focused');
+                } else {
+                    slide.classList.remove('focused');
+                }
+            });
+        }
+        
+        // Chart.js initialization code
+        function initializeCharts() {
+            // Problems Chart (Slide 2)
+            const problemsCtx = document.getElementById('problemsChart').getContext('2d');
+            new Chart(problemsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['जागरूकता की कमी', 'जटिल दावा प्रक्रिया', 'संचार अंतराल', 'अस्पताल अस्पष्टता', 'बिखरा हुआ डेटा'],
+                    datasets: [{
+                        label: 'समस्याओं का प्रतिशत',
+                        data: [60, 45, 55, 70, 40], // Added Hospital Transparency (70)
+                        backgroundColor: ['#e74c3c','#e67e22','#f1c40f','#555','#3498db'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true, max: 100, title: {display: true, text: 'प्रतिशत (%)'}}}, plugins: {legend: {display: false}, title: {display: true, text: 'प्रमुख परिचालन चुनौतियाँ', font: {size: 16}}}}
+            });
+
+            // Call Center Chart (Slide 4)
+            const callCenterCtx = document.getElementById('callCenterChart').getContext('2d');
+            new Chart(callCenterCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['इनबाउंड सहायता', 'आउटबाउंड जागरूकता', 'AI ऑटोमेशन', 'शिकायत निवारण'],
+                    datasets: [{
+                        data: [45, 20, 25, 10], // Adjusted data for new structure
+                        backgroundColor: ['#1e3c72','#ff9933','#138808','#4a69bd'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'right', labels: {font: {size: 14}}}}}
+            });
+
+            // Timeline Chart (Slide 14)
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            new Chart(timelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['नियोजन & प्रोक्योरमेंट', 'विकास & LED पायलट', 'एकीकरण & प्रशिक्षण', 'राष्ट्रीय रोलआउट'],
+                    datasets: [{
+                        label: 'महीने',
+                        data: [3, 4, 3, 2],
+                        backgroundColor: ['#1e3c72','#ff9933','#138808','#4a69bd']
+                    }]
+                },
+                options: {responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: {x: {beginAtZero: true, stacked: true, max: 12, title: {display: true, text: 'महीने'}}}},
+            });
+
+
+            // Conclusion Chart (Slide 18)
+            const conclusionCtx = document.getElementById('conclusionChart').getContext('2d');
+            new Chart(conclusionCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['जागरूकता', 'दावा प्रसंस्करण', 'अस्पताल पारदर्शिता', 'सेवा संतुष्टि', 'धोखाधड़ी में कमी'],
+                    datasets: [{
+                        label: 'वर्तमान',
+                        data: [40, 30, 20, 50, 45],
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderColor: '#e74c3c',
+                        pointBackgroundColor: '#e74c3c'
+                    }, {
+                        label: 'समाधान के बाद (अपेक्षित)',
+                        data: [85, 80, 95, 90, 85],
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: '#27ae60',
+                        pointBackgroundColor: '#27ae60'
+                    }]
+                },
+                options: {responsive: true, maintainAspectRatio: false, scales: {r: {beginAtZero: true, max: 100}}}
+            });
+        }
     </script>
 </body>
 </html>
